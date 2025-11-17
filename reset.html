@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboDoc - Reset Password</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl shadow-gray-300 flex flex-col">
+    <header class="text-center p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+      <h1 class="text-2xl font-extrabold tracking-tight">RoboDoc</h1>
+      <p class="text-xs mt-1 opacity-90">Reset your password</p>
+    </header>
+
+    <main class="p-6 md:p-8 flex-1">
+      <form id="reset-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="reset-email">
+            Email
+          </label>
+          <input id="reset-email" type="email"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="you@example.com" required>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="reset-password">
+            New Password
+          </label>
+          <input id="reset-password" type="password"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Use at least 8 characters and a symbol" required>
+          <p class="text-[11px] text-gray-400 mt-1">
+            Password must be at least 8 characters and include a special character.
+          </p>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
+          Update Password
+        </button>
+
+        <button type="button"
+                id="back-to-login"
+                class="mt-3 w-full text-sm text-gray-600 hover:text-gray-800 underline">
+          &larr; Back to login
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const USERS_KEY = 'robodoc_users';
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(USERS_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
+
+    function isStrongPassword(pw) {
+      if (!pw || pw.length < 8) return false;
+      return /[^A-Za-z0-9]/.test(pw);
+    }
+
+    // Pre-fill email if user came from login
+    const savedResetEmail = localStorage.getItem('robodoc_reset_email');
+    if (savedResetEmail) {
+      document.getElementById('reset-email').value = savedResetEmail;
+    }
+
+    document.getElementById('back-to-login').addEventListener('click', () => {
+      window.location.href = 'auth.html';
+    });
+
+    document.getElementById('reset-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('reset-email').value.trim().toLowerCase();
+      const newPassword = document.getElementById('reset-password').value;
+
+      if (!isStrongPassword(newPassword)) {
+        alert('Password must be at least 8 characters and include a special character.');
+        return;
+      }
+
+      const users = loadUsers();
+      const user = users.find(u => u.email === email);
+      if (!user) {
+        alert('No account found with that email.');
+        return;
+      }
+
+      user.password = newPassword;
+      saveUsers(users);
+      localStorage.removeItem('robodoc_reset_email');
+      alert('Password updated! Please log in with your new password.');
+      window.location.href = 'auth.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboDoc – Results</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.8rem;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .chat-ai {
+      background-color: #eef4ff;
+      color: #1e40af;
+      border-top-left-radius: 0.3rem;
+      box-shadow: 0 1px 4px rgba(30, 64, 175, 0.18);
+    }
+
+    .chat-user {
+      background-color: #e5e7eb;
+      color: #111827;
+      border-top-right-radius: 0.3rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl shadow-gray-300 flex flex-col">
+
+    <!-- HEADER -->
+    <header class="p-6 border-b border-gray-100 flex items-center justify-between bg-white/70 backdrop-blur">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">Your AI Recommendations</h1>
+        <p class="text-xs text-gray-500 mt-1">Based on: <span id="summary-condition" class="font-semibold text-blue-600"></span></p>
+      </div>
+
+      <div class="flex flex-col gap-1 text-right">
+        <button id="start-over-btn" class="text-xs text-blue-600 hover:underline">Start Over</button>
+        <button id="logout-btn" class="text-[10px] text-gray-500 hover:underline">Log out</button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="p-6 md:p-8 flex-1 flex flex-col gap-6">
+
+      <!-- AI CHAT -->
+      <section>
+        <h2 class="text-sm font-semibold text-gray-700 mb-2">AI Conversation</h2>
+        <div id="chat-output"
+             class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3 h-60 overflow-y-auto text-sm">
+        </div>
+      </section>
+
+      <!-- MEDICINE OPTIONS -->
+      <section>
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-semibold text-gray-700">Recommended Medicines</h2>
+          <span class="px-2 py-0.5 rounded-full text-[10px] bg-blue-50 text-blue-700 border border-blue-200">
+            Local AI (demo)
+          </span>
+        </div>
+
+        <div id="recommendation-list" class="space-y-3"></div>
+
+        <p id="no-results-message" class="hidden text-xs text-red-600 mt-1">
+          No safe medication options were identified.
+        </p>
+      </section>
+
+      <section class="pt-2 border-t border-gray-100">
+        <p class="text-[11px] text-gray-400 text-center">
+          This is a demo-only AI simulation. Always consult a licensed healthcare provider.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+<script>
+/* ===============================
+   STORAGE KEYS
+=============================== */
+const STORAGE_KEYS = {
+  diagnosis: 'robodoc_diagnosis',
+  history: 'robodoc_history',
+  allergies: 'robodoc_allergies',
+  currentUser: 'robodoc_current_user'
+};
+
+/* ===============================
+   LOGOUT + START OVER
+=============================== */
+document.getElementById("logout-btn").addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEYS.currentUser);
+  window.location.href = "auth.html";
+});
+
+document.getElementById("start-over-btn").addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEYS.diagnosis);
+  localStorage.removeItem(STORAGE_KEYS.history);
+  localStorage.removeItem(STORAGE_KEYS.allergies);
+  window.location.href = "input.html";
+});
+
+/* ===============================
+   CHAT UI
+=============================== */
+const chatOutput = document.getElementById("chat-output");
+
+function addChatMessage(text, from = "ai") {
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("flex", "w-full");
+
+  const bubble = document.createElement("div");
+  bubble.classList.add("chat-bubble", from === "user" ? "chat-user" : "chat-ai");
+  bubble.textContent = text;
+
+  if (from === "user") wrapper.classList.add("justify-end");
+  else wrapper.classList.add("justify-start");
+
+  wrapper.appendChild(bubble);
+  chatOutput.appendChild(wrapper);
+  chatOutput.scrollTop = chatOutput.scrollHeight;
+}
+
+/* ===============================
+   FAKE LOCAL AI (NO BACKEND NEEDED)
+=============================== */
+
+function fakeAiAnalysis(symptoms, history, allergies) {
+
+  // Basic keyword mapping
+  const keywordMap = {
+    fever: ["Ibuprofen", "Acetaminophen"],
+    headache: ["Acetaminophen", "Ibuprofen"],
+    cold: ["Saline Spray", "Decongestant"],
+    sore: ["Lozenges", "Ibuprofen"],
+    cough: ["Cough Syrup", "Lozenges"],
+    congestion: ["Saline Spray", "Decongestant"]
+  };
+
+  const allMeds = {
+    "Ibuprofen": {
+      description: "NSAID pain + fever reducer.",
+      pros: ["Reduces inflammation", "Helps with fever", "Fast-acting"],
+      cons: ["May irritate stomach"],
+      conflicts: ["ulcer", "bleeding", "ibuprofen", "nsaid"]
+    },
+    "Acetaminophen": {
+      description: "Pain + fever reducer, gentler on the stomach.",
+      pros: ["Safe with ulcers", "Reduces fever", "Few interactions"],
+      cons: ["Not anti-inflammatory"],
+      conflicts: ["liver", "hepatitis", "tylenol"]
+    },
+    "Saline Spray": {
+      description: "Moisturizes nasal passages + clears congestion.",
+      pros: ["Very safe", "Non-medicated", "Can be used frequently"],
+      cons: ["Mild effect"],
+      conflicts: []
+    },
+    "Lozenges": {
+      description: "Soothes and numbs sore throat.",
+      pros: ["Immediate relief", "Easy to use"],
+      cons: ["Temporary relief"],
+      conflicts: ["menthol", "benzocaine"]
+    },
+    "Decongestant": {
+      description: "Relieves nasal congestion.",
+      pros: ["Opens airways", "Fast-acting"],
+      cons: ["May raise blood pressure"],
+      conflicts: ["hypertension", "blood pressure"]
+    },
+    "Cough Syrup": {
+      description: "Reduces coughing and throat irritation.",
+      pros: ["Soothes airway", "Helps sleep"],
+      cons: ["May cause drowsiness"],
+      conflicts: ["dextromethorphan", "dm"]
+    }
+  };
+
+  // Extract keywords from symptoms
+  const tokens = symptoms.toLowerCase().split(/[^a-z0-9]+/g);
+
+  let possibleMeds = new Set();
+
+  tokens.forEach(token => {
+    if (keywordMap[token]) {
+      keywordMap[token].forEach(m => possibleMeds.add(m));
+    }
+  });
+
+  // Convert allergies/history to lowercase tokens
+  const allergyTokens = allergies.toLowerCase();
+  const historyTokens = history.toLowerCase();
+
+  const medicines = [];
+
+  possibleMeds.forEach(name => {
+    const med = allMeds[name];
+
+    // Check conflicts → CAUTION, skip entirely
+    const isConflict = med.conflicts.some(c =>
+      allergyTokens.includes(c) || historyTokens.includes(c)
+    );
+
+    if (!isConflict) {
+      medicines.push({
+        name,
+        description: med.description,
+        pros: med.pros,
+        cons: med.cons,
+        safety: "safe" // ONLY SAFE RETURNED
+      });
+    }
+  });
+
+  // AI Chat responses
+  const messages = [
+    "I've analyzed your symptoms. Here's what I'm seeing:",
+    "I'm cross-checking against your medical history and allergies.",
+    "Based on everything you shared, I found some options that are typically considered safe."
+  ];
+
+  return { messages, medicines };
+}
+
+/* ===============================
+   MAIN RENDER LOGIC
+=============================== */
+const summaryConditionEl = document.getElementById("summary-condition");
+const recommendationList = document.getElementById("recommendation-list");
+const noResultsMessage = document.getElementById("no-results-message");
+
+async function renderResults() {
+  const diagnosis = localStorage.getItem(STORAGE_KEYS.diagnosis) || "";
+  const history = localStorage.getItem(STORAGE_KEYS.history) || "";
+  const allergies = localStorage.getItem(STORAGE_KEYS.allergies) || "";
+
+  if (!diagnosis) {
+    window.location.href = "input.html";
+    return;
+  }
+
+  summaryConditionEl.textContent = diagnosis.length > 60 ? diagnosis.slice(0, 57) + "..." : diagnosis;
+
+  addChatMessage(`You're reporting: ${diagnosis}.`);
+  if (history) addChatMessage(`Medical history noted: ${history}.`);
+  if (allergies) addChatMessage(`Allergies noted: ${allergies}.`);
+
+  await new Promise(res => setTimeout(res, 500)); // short delay for realism
+
+  const ai = fakeAiAnalysis(diagnosis, history, allergies);
+
+  ai.messages.forEach(msg => addChatMessage(msg));
+
+  if (ai.medicines.length === 0) {
+    noResultsMessage.classList.remove("hidden");
+    return;
+  }
+
+  ai.medicines.forEach(med => {
+    const card = document.createElement("div");
+    card.className = "bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow";
+
+    card.innerHTML = `
+      <div class="flex justify-between items-start gap-2">
+        <div>
+          <h3 class="text-base font-bold text-gray-900">${med.name}</h3>
+          <p class="text-xs text-gray-600 mt-1">${med.description}</p>
+        </div>
+
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center px-2 py-1 rounded-full bg-green-50 border border-green-200 mb-1">
+            <span class="text-xs font-semibold text-green-700">$</span>
+          </div>
+          <p class="text-[11px] text-gray-500">Low Cost</p>
+        </div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="bg-green-50 border border-green-100 p-3 rounded-md">
+          <h4 class="font-semibold text-green-800 mb-1">Pros</h4>
+          <ul class="list-disc list-inside space-y-0.5 text-green-800">
+            ${med.pros.map(p => `<li>${p}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div class="bg-red-50 border border-red-100 p-3 rounded-md">
+          <h4 class="font-semibold text-red-800 mb-1">Cons</h4>
+          <ul class="list-disc list-inside space-y-0.5 text-red-800">
+            ${med.cons.map(c => `<li>${c}</li>`).join("")}
+          </ul>
+        </div>
+      </div>
+    `;
+
+    recommendationList.appendChild(card);
+  });
+
+  addChatMessage("Let me know if you want to try different symptoms!");
+}
+
+renderResults();
+</script>
+
+</body>
+</html>

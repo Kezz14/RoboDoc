@@ -1,219 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoboDoc - AI Health Assistant</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
-        /* Custom animation for the loading spinner */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loader {
-            border-top-color: #3498db;
-            animation: spin 1s linear infinite;
-        }
-        .pro-con-card {
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboDoc - AI Health Assistant</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main shared stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl shadow-gray-300">
+  <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl shadow-gray-300">
 
-        <!-- Page 1: Input Screen -->
-        <div id="page-input" class="page active p-6 md:p-8">
-            <header class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-blue-600">Robo doc</h1>
-                <p class="text-gray-500 mt-1">Your AI-Powered Health Companion</p>
-            </header>
+    <!-- =========================
+         PAGE 0: AUTH (VINCENT)
+    ========================== -->
+    <div id="page-auth" class="page active p-6 md:p-8">
+      <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-blue-600">RoboDoc</h1>
+        <p class="text-gray-500 mt-1">Sign up or log in to continue</p>
+      </header>
 
-            <main>
-                <div class="space-y-6">
-                    <div>
-                        <label for="diagnosis" class="block text-sm font-medium text-gray-700 mb-1">Primary Symptoms or Diagnosis</label>
-                        <textarea id="diagnosis" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="e.g., Sore throat, headache, and fever..."></textarea>
-                    </div>
+      <!-- Tabs -->
+      <div class="flex mb-4 border-b border-gray-200">
+        <button id="tab-login" class="auth-tab flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600">
+          Log In
+        </button>
+        <button id="tab-signup" class="auth-tab flex-1 py-2 text-center text-gray-500">
+          Sign Up
+        </button>
+      </div>
 
-                    <div>
-                        <label for="history" class="block text-sm font-medium text-gray-700 mb-1">Relevant Medical History</label>
-                        <input type="text" id="history" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="e.g., Asthma, high blood pressure">
-                    </div>
-
-                    <div>
-                        <label for="allergies" class="block text-sm font-medium text-gray-700 mb-1">Known Allergies</label>
-                        <input type="text" id="allergies" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="e.g., Penicillin, Aspirin">
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <button id="analyze-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out">
-                        Find Recommendations
-                    </button>
-                </div>
-            </main>
-             <footer class="text-center mt-8">
-                <p class="text-xs text-gray-400">Disclaimer: This is for informational purposes only and is not a substitute for professional medical advice.</p>
-            </footer>
+      <!-- Login form -->
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="login-email">Email</label>
+          <input id="login-email" type="email"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="you@example.com" required>
         </div>
 
-        <!-- Page 2: Analysis Screen -->
-        <div id="page-analysis" class="page p-8 flex flex-col items-center justify-center min-h-screen text-center">
-             <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-24 w-24 mb-6"></div>
-            <h2 class="text-2xl font-semibold text-gray-700">Analyzing Your Information...</h2>
-            <p class="text-gray-500 mt-2 max-w-xs">Generating personalized, cost-effective treatment options just for you.</p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="login-password">Password</label>
+          <input id="login-password" type="password"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="••••••••" required>
         </div>
 
-        <!-- Page 3: Summary Screen -->
-        <div id="page-summary" class="page p-6 md:p-8">
-            <header class="mb-6">
-                <button id="back-btn" class="text-blue-600 hover:underline mb-4">&larr; Start Over</button>
-                <h1 class="text-2xl font-bold text-gray-800">Your Tailored Recommendations</h1>
-                <p class="text-gray-500">Based on your input for <span class="font-semibold">sore throat & fever</span>.</p>
-            </header>
-            
-            <main class="space-y-5">
-                <!-- Medicine Card 1 -->
-                <div class="pro-con-card bg-white border border-gray-200 rounded-lg p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">Ibuprofen (Advil, Motrin)</h3>
-                            <p class="text-sm text-gray-600">Over-the-counter pain reliever & fever reducer.</p>
-                        </div>
-                        <div class="text-center ml-4 flex-shrink-0">
-                           <p class="text-lg font-bold text-green-600">$</p>
-                           <p class="text-xs text-gray-500">Low Cost</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <!-- Pros -->
-                        <div class="bg-green-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-green-800 mb-2">Pros</h4>
-                            <ul class="list-disc list-inside space-y-1 text-green-700">
-                                <li>Reduces fever effectively</li>
-                                <li>Alleviates body aches</li>
-                                <li>Widely available</li>
-                            </ul>
-                        </div>
-                        <!-- Cons -->
-                        <div class="bg-red-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-red-800 mb-2">Potential Cons</h4>
-                            <ul class="list-disc list-inside space-y-1 text-red-700">
-                                <li>Can cause stomach upset</li>
-                                <li>Not for users with kidney issues</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300">
+          Log In
+        </button>
+      </form>
 
-                <!-- Medicine Card 2 -->
-                <div class="pro-con-card bg-white border border-gray-200 rounded-lg p-5">
-                     <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">Acetaminophen (Tylenol)</h3>
-                            <p class="text-sm text-gray-600">Over-the-counter pain reliever & fever reducer.</p>
-                        </div>
-                        <div class="text-center ml-4 flex-shrink-0">
-                           <p class="text-lg font-bold text-green-600">$</p>
-                           <p class="text-xs text-gray-500">Low Cost</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <!-- Pros -->
-                        <div class="bg-green-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-green-800 mb-2">Pros</h4>
-                            <ul class="list-disc list-inside space-y-1 text-green-700">
-                                <li>Gentler on the stomach</li>
-                                <li>Effective for pain and fever</li>
-                                <li>Fewer drug interactions</li>
-                            </ul>
-                        </div>
-                        <!-- Cons -->
-                        <div class="bg-red-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-red-800 mb-2">Potential Cons</h4>
-                            <ul class="list-disc list-inside space-y-1 text-red-700">
-                                <li>Not an anti-inflammatory</li>
-                                <li>Risk of liver damage if overused</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                 <!-- Medicine Card 3 -->
-                <div class="pro-con-card bg-white border border-gray-200 rounded-lg p-5">
-                     <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">Sore Throat Lozenges</h3>
-                            <p class="text-sm text-gray-600">Medicated drops to soothe throat irritation.</p>
-                        </div>
-                        <div class="text-center ml-4 flex-shrink-0">
-                           <p class="text-lg font-bold text-green-600">$</p>
-                           <p class="text-xs text-gray-500">Low Cost</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <!-- Pros -->
-                        <div class="bg-green-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-green-800 mb-2">Pros</h4>
-                            <ul class="list-disc list-inside space-y-1 text-green-700">
-                                <li>Provides immediate relief</li>
-                                <li>Contains numbing agents</li>
-                                <li>Easy to use</li>
-                            </ul>
-                        </div>
-                        <!-- Cons -->
-                        <div class="bg-red-50 p-3 rounded-md">
-                            <h4 class="font-semibold text-red-800 mb-2">Potential Cons</h4>
-                            <ul class="list-disc list-inside space-y-1 text-red-700">
-                                <li>Relief is temporary</li>
-                                <li>Doesn't treat underlying cause</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </main>
+      <!-- Sign up form -->
+      <form id="signup-form" class="space-y-4 hidden mt-2">
+        <div class="text-xs text-gray-500 mb-1">
+          Password must be at least 8 characters and include a special character.
         </div>
 
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="signup-email">Email</label>
+          <input id="signup-email" type="email"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="you@example.com" required>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="signup-password">Password</label>
+          <input id="signup-password" type="password"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Use at least 8 characters" required>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300">
+          Create Account
+        </button>
+      </form>
+
+      <!-- Change credentials section -->
+      <details class="mt-6 text-sm text-gray-600">
+        <summary class="cursor-pointer mb-2 font-medium">Change email or password</summary>
+        <form id="change-credentials-form" class="space-y-3 mt-2">
+          <p class="text-xs text-gray-500">
+            New email must be unique. New password cannot be the same as the old password.
+          </p>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1" for="new-email">New Email</label>
+            <input id="new-email" type="email"
+                   class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1" for="new-password">New Password</label>
+            <input id="new-password" type="password"
+                   class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <button type="submit"
+                  class="w-full bg-gray-800 text-white text-sm font-semibold py-2 rounded-lg hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-500">
+            Update Credentials
+          </button>
+        </form>
+      </details>
+
+      <p class="mt-6 text-xs text-center text-gray-400">
+        Note: Accounts are stored locally in your browser for demo purposes only.
+      </p>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const pages = document.querySelectorAll('.page');
-            const analyzeBtn = document.getElementById('analyze-btn');
-            const backBtn = document.getElementById('back-btn');
+    <!-- =========================
+         PAGE 1: INPUT (KEZIA)
+    ========================== -->
+    <div id="page-input" class="page p-6 md:p-8">
+      <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-blue-600">RoboDoc</h1>
+        <p class="text-gray-500 mt-1">Your AI-Powered Health Companion</p>
+      </header>
 
-            function showPage(pageId) {
-                pages.forEach(page => {
-                    page.classList.remove('active');
-                });
-                document.getElementById(pageId).classList.add('active');
-            }
+      <main>
+        <div class="space-y-6">
+          <div>
+            <label for="diagnosis" class="block text-sm font-medium text-gray-700 mb-1">
+              Primary Symptoms or Diagnosis
+            </label>
+            <textarea id="diagnosis" rows="4"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      placeholder="e.g., Sore throat, headache, and fever..." required></textarea>
+          </div>
 
-            analyzeBtn.addEventListener('click', () => {
-                showPage('page-analysis');
-                // Simulate analysis time
-                setTimeout(() => {
-                    showPage('page-summary');
-                }, 2500); // 2.5 seconds
-            });
+          <div>
+            <label for="history" class="block text-sm font-medium text-gray-700 mb-1">
+              Relevant Medical History
+            </label>
+            <input id="history" type="text"
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                   placeholder="e.g., Asthma, high blood pressure">
+          </div>
 
-            backBtn.addEventListener('click', () => {
-                showPage('page-input');
-            });
-        });
-    </script>
+          <div>
+            <label for="allergies" class="block text-sm font-medium text-gray-700 mb-1">
+              Known Allergies
+            </label>
+            <input id="allergies" type="text"
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                   placeholder="e.g., Penicillin, Aspirin">
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button id="analyze-btn"
+                  class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out">
+            Find Recommendations
+          </button>
+        </div>
+      </main>
+
+      <footer class="text-center mt-8">
+        <p class="text-xs text-gray-400">
+          Disclaimer: This tool is for educational and informational purposes only and is not a substitute for professional medical advice.
+        </p>
+      </footer>
+    </div>
+
+    <!-- =========================
+         PAGE 2: ANALYSIS (LOADER)
+    ========================== -->
+    <div id="page-analysis" class="page p-8 flex flex-col items-center justify-center min-h-screen text-center">
+      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-24 w-24 mb-6"></div>
+      <h2 class="text-2xl font-semibold text-gray-700">Analyzing Your Information...</h2>
+      <p class="text-gray-500 mt-2 max-w-xs">
+        Generating mock, personalized treatment options based on your symptoms, history, and allergies.
+      </p>
+    </div>
+
+    <!-- =========================
+         PAGE 3: SUMMARY + "AI CHAT" (SEAN)
+    ========================== -->
+    <div id="page-summary" class="page p-6 md:p-8">
+      <header class="mb-4">
+        <div class="flex justify-between items-center mb-3">
+          <button id="back-btn" class="text-blue-600 hover:underline text-sm">&larr; Start Over</button>
+          <p id="current-user-label" class="text-xs text-gray-500"></p>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">Your Tailored Recommendations</h1>
+        <p class="text-gray-500 text-sm mt-1">
+          Based on your input for <span id="summary-condition" class="font-semibold">your symptoms</span>.
+        </p>
+      </header>
+
+      <!-- AI-style chat output -->
+      <section class="mb-6">
+        <h2 class="text-sm font-semibold text-gray-700 mb-2">AI Conversation</h2>
+        <div id="chat-output" class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3 h-56 overflow-y-auto text-sm">
+          <!-- Messages appended by JS -->
+        </div>
+      </section>
+
+      <!-- Recommendations list -->
+      <main class="space-y-4">
+        <h2 class="text-sm font-semibold text-gray-700 mb-1">Medicine Options (Mock)</h2>
+        <div id="recommendation-list" class="space-y-4">
+          <!-- Dynamic medicine cards go here -->
+        </div>
+
+        <p id="no-results-message" class="hidden text-xs text-red-500">
+          We couldn't find any matches in our mock database. Please double-check your spelling or talk to a healthcare professional.
+        </p>
+      </main>
+
+      <footer class="text-center mt-6">
+        <p class="text-xs text-gray-400">
+          This is a demo app. Do not use it to make real medical decisions.
+        </p>
+      </footer>
+    </div>
+
+  </div>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
 </body>
 </html>
